@@ -1,0 +1,769 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>JanelaPrincipal</class>
+ <widget class="QMainWindow" name="JanelaPrincipal">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>950</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Loja de Pipas</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="layoutPrincipal">
+    <item>
+     <widget class="QLabel" name="labelTitulo">
+      <property name="font">
+       <font>
+        <pointsize>16</pointsize>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Loja de Pipas</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignmentFlag::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="abas">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <!-- ===================== ABA PRODUTOS ===================== -->
+      <widget class="QWidget" name="abaProdutos">
+       <attribute name="title">
+        <string>Produtos</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutProdutos">
+        <item>
+         <widget class="QGroupBox" name="grupoProduto">
+          <property name="title">
+           <string>Dados do produto</string>
+          </property>
+          <layout class="QFormLayout" name="formProduto">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelProdNome">
+             <property name="text">
+              <string>Nome:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="txtProdNome"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelProdPreco">
+             <property name="text">
+              <string>Preço:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QDoubleSpinBox" name="spinProdPreco">
+             <property name="prefix">
+              <string>R$ </string>
+             </property>
+             <property name="maximum">
+              <double>99999.990000000005239</double>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelProdEstoque">
+             <property name="text">
+              <string>Estoque:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="spinProdEstoque">
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelProdFornecedor">
+             <property name="text">
+              <string>Fornecedor:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="cbProdFornecedor"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="botoesProduto">
+          <item>
+           <widget class="QPushButton" name="btnProdSalvar">
+            <property name="text">
+             <string>Cadastrar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnProdAlterar">
+            <property name="text">
+             <string>Alterar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnProdExcluir">
+            <property name="text">
+             <string>Excluir</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnProdLimpar">
+            <property name="text">
+             <string>Limpar</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tabelaProdutos">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Nome</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Preço</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Estoque</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Fornecedor</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <!-- ===================== ABA FORNECEDORES ===================== -->
+      <widget class="QWidget" name="abaFornecedores">
+       <attribute name="title">
+        <string>Fornecedores</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutFornecedores">
+        <item>
+         <widget class="QGroupBox" name="grupoFornecedor">
+          <property name="title">
+           <string>Dados do fornecedor</string>
+          </property>
+          <layout class="QFormLayout" name="formFornecedor">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelFornNome">
+             <property name="text">
+              <string>Nome:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="txtFornNome"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelFornContato">
+             <property name="text">
+              <string>Contato:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="txtFornContato"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelFornEmail">
+             <property name="text">
+              <string>Email:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="txtFornEmail"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelFornEndereco">
+             <property name="text">
+              <string>Endereço:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="txtFornEndereco"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="botoesFornecedor">
+          <item>
+           <widget class="QPushButton" name="btnFornSalvar">
+            <property name="text">
+             <string>Cadastrar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnFornAlterar">
+            <property name="text">
+             <string>Alterar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnFornExcluir">
+            <property name="text">
+             <string>Excluir</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnFornLimpar">
+            <property name="text">
+             <string>Limpar</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tabelaFornecedores">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Nome</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Contato</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Email</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Endereço</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <!-- ===================== ABA CLIENTES ===================== -->
+      <widget class="QWidget" name="abaClientes">
+       <attribute name="title">
+        <string>Clientes</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutClientes">
+        <item>
+         <widget class="QGroupBox" name="grupoCliente">
+          <property name="title">
+           <string>Dados do cliente</string>
+          </property>
+          <layout class="QFormLayout" name="formCliente">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelCliNome">
+             <property name="text">
+              <string>Nome:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="txtCliNome"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelCliContato">
+             <property name="text">
+              <string>Contato:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="txtCliContato"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelCliEmail">
+             <property name="text">
+              <string>Email:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="txtCliEmail"/>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelCliEndereco">
+             <property name="text">
+              <string>Endereço:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="txtCliEndereco"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="botoesCliente">
+          <item>
+           <widget class="QPushButton" name="btnCliSalvar">
+            <property name="text">
+             <string>Cadastrar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnCliAlterar">
+            <property name="text">
+             <string>Alterar</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnCliExcluir">
+            <property name="text">
+             <string>Excluir</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnCliLimpar">
+            <property name="text">
+             <string>Limpar</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tabelaClientes">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Nome</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Contato</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Email</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Endereço</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <!-- ===================== ABA COMPRAS ===================== -->
+      <widget class="QWidget" name="abaCompras">
+       <attribute name="title">
+        <string>Compras</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutCompras">
+        <item>
+         <widget class="QGroupBox" name="grupoCompra">
+          <property name="title">
+           <string>Nova compra</string>
+          </property>
+          <layout class="QFormLayout" name="formCompra">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelCompraCliente">
+             <property name="text">
+              <string>Cliente:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="cbCompraCliente"/>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelCompraProduto">
+             <property name="text">
+              <string>Produto:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="cbCompraProduto"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelCompraQtd">
+             <property name="text">
+              <string>Quantidade:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QSpinBox" name="spinCompraQtd">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>99999</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelCompraFiado">
+             <property name="text">
+              <string>Pagamento:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="checkCompraFiado">
+             <property name="text">
+              <string>Fiado (lançar como dívida do cliente)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="labelCompraTotalTexto">
+             <property name="text">
+              <string>Total:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLabel" name="labelCompraTotal">
+             <property name="font">
+              <font>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text">
+              <string>R$ 0.00</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="botoesCompra">
+          <item>
+           <widget class="QPushButton" name="btnCompraRegistrar">
+            <property name="text">
+             <string>Registrar compra</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnCompraCancelar">
+            <property name="text">
+             <string>Cancelar compra selecionada</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tabelaCompras">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Data</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Cliente</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Produto</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Quantidade</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Total</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <!-- ===================== ABA DEVEDORES ===================== -->
+      <widget class="QWidget" name="abaDevedores">
+       <attribute name="title">
+        <string>Devedores</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="layoutDevedores">
+        <item>
+         <layout class="QHBoxLayout" name="layoutGruposDevedores">
+          <item>
+           <widget class="QGroupBox" name="grupoNovaDivida">
+            <property name="title">
+             <string>Nova dívida</string>
+            </property>
+            <layout class="QFormLayout" name="formNovaDivida">
+             <item row="0" column="0">
+              <widget class="QLabel" name="labelDevCliente">
+               <property name="text">
+                <string>Cliente:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="cbDevCliente"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="labelDevValor">
+               <property name="text">
+                <string>Valor:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QDoubleSpinBox" name="spinDevValor">
+               <property name="prefix">
+                <string>R$ </string>
+               </property>
+               <property name="maximum">
+                <double>99999.990000000005239</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="labelDevDescricao">
+               <property name="text">
+                <string>Descrição:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="txtDevDescricao"/>
+             </item>
+             <item row="3" column="1">
+              <widget class="QPushButton" name="btnDevRegistrar">
+               <property name="text">
+                <string>Registrar dívida</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="grupoPagamento">
+            <property name="title">
+             <string>Pagamento da dívida selecionada</string>
+            </property>
+            <layout class="QFormLayout" name="formPagamento">
+             <item row="0" column="0">
+              <widget class="QLabel" name="labelDevPagamento">
+               <property name="text">
+                <string>Valor pago:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="spinDevPagamento">
+               <property name="prefix">
+                <string>R$ </string>
+               </property>
+               <property name="maximum">
+                <double>99999.990000000005239</double>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="btnDevPagar">
+               <property name="text">
+                <string>Registrar pagamento</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tabelaDevedores">
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+          </property>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>ID</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Cliente</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Valor</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Data</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Descrição</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelDevTotal">
+          <property name="font">
+           <font>
+            <pointsize>11</pointsize>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Total a receber: R$ 0.00</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignRight</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
