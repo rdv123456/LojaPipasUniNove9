@@ -1,21 +1,25 @@
-# Loja de Pipas - interface grafica com PySide6
-# A tela foi feita no Qt Designer (loja.ui) e os dados ficam no banco SQLite LojaDePipasUni9.db
+# Loja de Pipas: este arquivo cuida da parte visual e das acoes do sistema.
+# A tela foi montada no Qt Designer em "loja.ui".
+# O cadastro dos dados fica guardado no banco SQLite "LojaDePipasUni9.db".
 
+# Biblioteca padrao do Python para trabalhar com pastas e arquivos.
 import os
+# Usada para acessar coisas da execucao do programa.
 import sys
+# Usada para conectar e manipular o banco SQLite.
 import sqlite3
 
-from PySide6.QtWidgets import QApplication, QMessageBox, QTableWidgetItem
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtCore import QFile
+# Classes do PySide6 que criam janelas, botoes, caixas de texto e tabelas.
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox, QTableWidgetItem
+# Este arquivo foi criado a partir de loja.ui pelo pyside6-uic.
+# Ele ja vem com todos os botoes e campos dentro do executavel.
+from loja_ui import Ui_JanelaPrincipal
 
-# Quando executado como codigo-fonte, os arquivos ficam na pasta do projeto.
-# Quando empacotado pelo PyInstaller, o executavel guarda o banco ao lado dele
-# e os recursos empacotados ficam na pasta temporaria definida pelo PyInstaller.
+# Aqui definimos onde cada arquivo sera procurado.
+# Rodando pelo Python: tudo fica na pasta do projeto.
+# Rodando pelo executavel: a tela ja esta dentro do codigo e o banco fica ao lado do .exe.
 PASTA_PROJETO = os.path.dirname(os.path.abspath(__file__))
-PASTA_RECURSOS = getattr(sys, "_MEIPASS", PASTA_PROJETO)
 PASTA_DADOS = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else PASTA_PROJETO
-ARQUIVO_UI = os.path.join(PASTA_RECURSOS, "loja.ui")
 ARQUIVO_BANCO = os.path.join(PASTA_DADOS, "LojaDePipasUni9.db")
 
 
@@ -24,32 +28,41 @@ ARQUIVO_BANCO = os.path.join(PASTA_DADOS, "LojaDePipasUni9.db")
 # ============================================================
 
 def conectar_banco():
+    # Garante que a pasta local exista. Se o .exe estiver em uma pasta nova, o banco pode ser criado ali.
+    os.makedirs(PASTA_DADOS, exist_ok=True)
+    # sqlite3 cria o arquivo automaticamente quando ele ainda nao existe.
     con = sqlite3.connect(ARQUIVO_BANCO)
-    con.execute("PRAGMA foreign_keys = ON")  # liga a verificacao das chaves estrangeiras
+    # Liga a verificacao das chaves estrangeiras, evitando apagar registros ligados a outros dados.
+    con.execute("PRAGMA foreign_keys = ON")
     return con
 
 
 def criar_tabelas():
-    # so cria se ainda nao existir
+    # CREATE TABLE IF NOT EXISTS nao apaga os dados: ele apenas cria a tabela quando ainda nao existe.
+    # Esta tabela guarda os fornecedores.
     conexao.execute("""CREATE TABLE IF NOT EXISTS Fornecedor (
         id_fornecedor INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT, contato TEXT, email TEXT, endereco TEXT)""")
 
+    # Esta tabela guarda os produtos e liga cada produto a um fornecedor.
     conexao.execute("""CREATE TABLE IF NOT EXISTS Produtos (
         id_produto INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT, quantidade_estoque INTEGER, preco NUMERIC, id_fornecedor INTEGER,
         FOREIGN KEY (id_fornecedor) REFERENCES Fornecedor(id_fornecedor))""")
 
+    # Esta tabela guarda os clientes cadastrados.
     conexao.execute("""CREATE TABLE IF NOT EXISTS Clientes (
         id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
         nome TEXT, contato TEXT, email TEXT, endereco TEXT)""")
 
+    # Esta tabela guarda as compras feitas por clientes.
     conexao.execute("""CREATE TABLE IF NOT EXISTS Compras (
         id_compra INTEGER PRIMARY KEY AUTOINCREMENT,
         id_produto INTEGER, id_cliente INTEGER, quantidade_comprada INTEGER, data_compra INTEGER,
         FOREIGN KEY (id_produto) REFERENCES Produtos(id_produto),
         FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente))""")
 
+    # Esta tabela guarda dividas ou compras feitas no fiado.
     conexao.execute("""CREATE TABLE IF NOT EXISTS Devedores (
         id_devedor INTEGER PRIMARY KEY AUTOINCREMENT,
         id_cliente INTEGER, valor_devendo NUMERIC, data_divida DATE, descricao TEXT,
@@ -62,31 +75,36 @@ def criar_tabelas():
 # ============================================================
 
 def mostrar_mensagem(texto):
+    # Caixa verde? Nao e verde; aqui usamos uma caixa simples de informacao para avisar o usuario.
     QMessageBox.information(janela, "Loja de Pipas", texto)
 
 
 def mostrar_erro(texto):
+    # Caixa de aviso usada quando falta algum dado ou existe um problema no cadastro.
     QMessageBox.warning(janela, "Atencao", texto)
 
 
 def perguntar(texto):
+    # Pergunta ao usuario antes de uma exclusao ou cancelamento importante.
     resposta = QMessageBox.question(janela, "Confirmar", texto)
     return resposta == QMessageBox.StandardButton.Yes
 
 
 def preencher_tabela(tabela, linhas):
-    # coloca o resultado do SELECT dentro da QTableWidget
+    # Limpa a tabela antes de preencher, porque precisamos mostrar somente os dados atuais do banco.
     tabela.setRowCount(0)
     for linha in linhas:
         numero_linha = tabela.rowCount()
         tabela.insertRow(numero_linha)
         for coluna, valor in enumerate(linha):
+            # QTableWidget precisa receber um objeto de texto em cada celula.
             tabela.setItem(numero_linha, coluna, QTableWidgetItem(str(valor)))
+    # Ajusta a largura das colunas automaticamente para o conteudo aparecer melhor.
     tabela.resizeColumnsToContents()
 
 
 def pegar_id_selecionado(tabela):
-    # o ID sempre esta na primeira coluna da tabela
+    # O ID sempre fica na primeira coluna. Se nada estiver selecionado, devolvemos None.
     linha = tabela.currentRow()
     if linha < 0 or tabela.item(linha, 0) is None:
         return None
@@ -94,6 +112,7 @@ def pegar_id_selecionado(tabela):
 
 
 def dinheiro(valor):
+    # Coloca o valor no padrao brasileiro mostrado pela interface.
     return f"R$ {valor:.2f}"
 
 
@@ -102,6 +121,7 @@ def dinheiro(valor):
 # ============================================================
 
 def carregar_fornecedores():
+    # SELECT pega os dados; fetchall() transforma o resultado em uma lista.
     dados = conexao.execute(
         "SELECT id_fornecedor, nome, contato, email, endereco FROM Fornecedor ORDER BY id_fornecedor"
     ).fetchall()
@@ -114,6 +134,7 @@ def carregar_fornecedores():
 
 
 def carregar_clientes():
+    # Busca os clientes e deixa os dados prontos para tabela e comboboxes.
     dados = conexao.execute(
         "SELECT id_cliente, nome, contato, email, endereco FROM Clientes ORDER BY id_cliente"
     ).fetchall()
@@ -128,7 +149,8 @@ def carregar_clientes():
 
 
 def carregar_produtos():
-    # LEFT JOIN para mostrar o nome do fornecedor em vez so do numero
+    # LEFT JOIN conecta a tabela Produtos com Fornecedor.
+    # Assim mostramos o nome do fornecedor em vez de aparecer apenas o id dele.
     dados = conexao.execute("""
         SELECT p.id_produto, p.nome, p.preco, p.quantidade_estoque, f.nome
         FROM Produtos p
@@ -148,6 +170,7 @@ def carregar_produtos():
 
 
 def carregar_compras():
+    # Faz a leitura das compras ligando os dados de produto e cliente pelo id.
     dados = conexao.execute("""
         SELECT c.id_compra, c.data_compra, cl.nome, p.nome, c.quantidade_comprada, p.preco
         FROM Compras c
@@ -164,6 +187,7 @@ def carregar_compras():
 
 
 def carregar_devedores():
+    # Aqui buscamos as dividas e somamos tudo que ainda esta pendente.
     dados = conexao.execute("""
         SELECT d.id_devedor, c.nome, d.valor_devendo, d.data_divida, d.descricao
         FROM Devedores d
@@ -181,6 +205,7 @@ def carregar_devedores():
 
 
 def atualizar_tudo():
+    # Atualiza todas as partes da tela depois que algo muda no banco.
     carregar_fornecedores()
     carregar_clientes()
     carregar_produtos()
@@ -194,6 +219,7 @@ def atualizar_tudo():
 # ============================================================
 
 def limpar_produto():
+    # Volta os campos do produto para o estado inicial e remove a selecao da tabela.
     janela.txtProdNome.clear()
     janela.spinProdPreco.setValue(0)
     janela.spinProdEstoque.setValue(0)
@@ -202,7 +228,8 @@ def limpar_produto():
 
 
 def selecionar_produto():
-    # quando clica numa linha da tabela, joga os dados nos campos
+    # Quando o usuario clica em uma linha, o programa procura esse id no banco.
+    # Depois envia os dados encontrados para os campos da aba Produtos.
     id_produto = pegar_id_selecionado(janela.tabelaProdutos)
     if id_produto is None:
         return
@@ -217,6 +244,7 @@ def selecionar_produto():
 
 
 def validar_produto():
+    # Verifica os campos obrigatorios antes de cadastrar ou alterar.
     if janela.txtProdNome.text().strip() == "":
         mostrar_erro("Digite o nome do produto!")
         return False
@@ -227,6 +255,7 @@ def validar_produto():
 
 
 def cadastrar_produto():
+    # Primeiro valida; se estiver tudo certo, monta o INSERT com os valores digitados.
     if not validar_produto():
         return
     conexao.execute(
@@ -241,6 +270,7 @@ def cadastrar_produto():
 
 
 def alterar_produto():
+    # Precisa selecionar um produto antes de tentar alterar seus dados.
     id_produto = pegar_id_selecionado(janela.tabelaProdutos)
     if id_produto is None:
         mostrar_erro("Selecione um produto na tabela!")
@@ -259,6 +289,7 @@ def alterar_produto():
 
 
 def excluir_produto():
+    # Busca o id selecionado e pede confirmacao antes de excluir.
     id_produto = pegar_id_selecionado(janela.tabelaProdutos)
     if id_produto is None:
         mostrar_erro("Selecione um produto na tabela!")
@@ -281,6 +312,7 @@ def excluir_produto():
 # ============================================================
 
 def limpar_fornecedor():
+    # Limpa os campos e deixa a tabela sem linha selecionada.
     janela.txtFornNome.clear()
     janela.txtFornContato.clear()
     janela.txtFornEmail.clear()
@@ -290,6 +322,7 @@ def limpar_fornecedor():
 
 
 def selecionar_fornecedor():
+    # Ao clicar em um fornecedor, consulta seus dados e preenche o formulario.
     id_fornecedor = pegar_id_selecionado(janela.tabelaFornecedores)
     if id_fornecedor is None:
         return
@@ -304,6 +337,7 @@ def selecionar_fornecedor():
 
 
 def cadastrar_fornecedor():
+    # O nome e obrigatorio. Os outros dados podem ser preenchidos livremente.
     if janela.txtFornNome.text().strip() == "":
         mostrar_erro("Digite o nome do fornecedor!")
         return
@@ -319,6 +353,7 @@ def cadastrar_fornecedor():
 
 
 def alterar_fornecedor():
+    # O UPDATE muda somente o fornecedor identificado pelo id selecionado.
     id_fornecedor = pegar_id_selecionado(janela.tabelaFornecedores)
     if id_fornecedor is None:
         mostrar_erro("Selecione um fornecedor na tabela!")
@@ -338,6 +373,7 @@ def alterar_fornecedor():
 
 
 def excluir_fornecedor():
+    # Se houver produtos ligados a ele, o banco impede a exclusao para nao quebrar os relacionamentos.
     id_fornecedor = pegar_id_selecionado(janela.tabelaFornecedores)
     if id_fornecedor is None:
         mostrar_erro("Selecione um fornecedor na tabela!")
@@ -360,6 +396,7 @@ def excluir_fornecedor():
 # ============================================================
 
 def limpar_cliente():
+    # Deixa o formulario pronto para cadastrar um novo cliente.
     janela.txtCliNome.clear()
     janela.txtCliContato.clear()
     janela.txtCliEmail.clear()
@@ -369,6 +406,7 @@ def limpar_cliente():
 
 
 def selecionar_cliente():
+    # Coloca os dados da linha selecionada dentro dos campos da aba Clientes.
     id_cliente = pegar_id_selecionado(janela.tabelaClientes)
     if id_cliente is None:
         return
@@ -383,6 +421,7 @@ def selecionar_cliente():
 
 
 def cadastrar_cliente():
+    # Faz a verificacao do nome e salva os dados com um INSERT.
     if janela.txtCliNome.text().strip() == "":
         mostrar_erro("Digite o nome do cliente!")
         return
@@ -398,6 +437,7 @@ def cadastrar_cliente():
 
 
 def alterar_cliente():
+    # Atualiza os dados do cliente que esta selecionado na tabela.
     id_cliente = pegar_id_selecionado(janela.tabelaClientes)
     if id_cliente is None:
         mostrar_erro("Selecione um cliente na tabela!")
@@ -417,6 +457,7 @@ def alterar_cliente():
 
 
 def excluir_cliente():
+    # Nao permite excluir cliente que ainda possui compras ou dividas.
     id_cliente = pegar_id_selecionado(janela.tabelaClientes)
     if id_cliente is None:
         mostrar_erro("Selecione um cliente na tabela!")
@@ -439,6 +480,7 @@ def excluir_cliente():
 # ============================================================
 
 def calcular_total_compra():
+    # Consulta o preco do produto escolhido e multiplica pela quantidade selecionada.
     id_produto = janela.cbCompraProduto.currentData()
     if id_produto is None:
         janela.labelCompraTotal.setText(dinheiro(0))
@@ -449,14 +491,18 @@ def calcular_total_compra():
 
 
 def registrar_compra():
+    # Junta cliente, produto e quantidade antes de cadastrar a compra.
+    # Essa funcao tambem confere o estoque e cria uma divida quando a compra e fiado.
     id_cliente = janela.cbCompraCliente.currentData()
     id_produto = janela.cbCompraProduto.currentData()
     quantidade = janela.spinCompraQtd.value()
 
     if id_cliente is None:
+        # O combobox nao tera id quando nao houver nenhum cliente cadastrado.
         mostrar_erro("Cadastre um cliente primeiro!")
         return
     if id_produto is None:
+        # O mesmo ocorre quando ainda nao existe nenhum produto.
         mostrar_erro("Cadastre um produto primeiro!")
         return
 
@@ -465,23 +511,25 @@ def registrar_compra():
     ).fetchone()
 
     if quantidade > estoque:
+        # Esta validacao evita vender mais unidades do que existem no estoque.
         mostrar_erro(f"Estoque insuficiente! So tem {estoque} unidade(s).")
         return
 
+    # Preco vezes quantidade informa quanto a compra custou no total.
     total = preco * quantidade
 
-    # salva a compra
+    # Salva o registro da compra no banco.
     conexao.execute(
         "INSERT INTO Compras (id_produto, id_cliente, quantidade_comprada, data_compra) "
         "VALUES (?, ?, ?, date('now', 'localtime'))",
         (id_produto, id_cliente, quantidade)
     )
-    # tira do estoque
+    # Desconta a quantidade vendida do estoque.
     conexao.execute(
         "UPDATE Produtos SET quantidade_estoque = quantidade_estoque - ? WHERE id_produto = ?",
         (quantidade, id_produto)
     )
-    # se for fiado, cria a divida do cliente
+    # Se o usuario marcou Fiado, cria uma divida para o mesmo cliente.
     if janela.checkCompraFiado.isChecked():
         conexao.execute(
             "INSERT INTO Devedores (id_cliente, valor_devendo, data_divida, descricao) "
@@ -501,6 +549,7 @@ def registrar_compra():
 
 
 def cancelar_compra():
+    # Ao cancelar, devolvemos ao estoque exatamente a quantidade que havia sido vendida.
     id_compra = pegar_id_selecionado(janela.tabelaCompras)
     if id_compra is None:
         mostrar_erro("Selecione uma compra na tabela!")
@@ -512,11 +561,12 @@ def cancelar_compra():
         "SELECT id_produto, quantidade_comprada FROM Compras WHERE id_compra = ?", (id_compra,)
     ).fetchone()
 
-    # devolve pro estoque e apaga a compra
+    # Primeiro devolve os produtos ao estoque.
     conexao.execute(
         "UPDATE Produtos SET quantidade_estoque = quantidade_estoque + ? WHERE id_produto = ?",
         (quantidade, id_produto)
     )
+    # Depois apaga o registro da compra.
     conexao.execute("DELETE FROM Compras WHERE id_compra = ?", (id_compra,))
     conexao.commit()
     mostrar_mensagem("Compra cancelada! Se ela foi fiado, lembre de ajustar a divida na aba Devedores.")
@@ -528,6 +578,7 @@ def cancelar_compra():
 # ============================================================
 
 def registrar_divida():
+    # Cria manualmente uma divida para um cliente selecionado.
     id_cliente = janela.cbDevCliente.currentData()
     valor = janela.spinDevValor.value()
     descricao = janela.txtDevDescricao.text().strip()
@@ -555,6 +606,7 @@ def registrar_divida():
 
 
 def pagar_divida():
+    # Busca a divida selecionada e confere quanto o cliente esta pagando.
     id_devedor = pegar_id_selecionado(janela.tabelaDevedores)
     if id_devedor is None:
         mostrar_erro("Selecione uma divida na tabela!")
@@ -570,7 +622,8 @@ def pagar_divida():
     restante = round(devendo - pago, 2)
 
     if restante <= 0:
-        # pagou tudo, entao apaga a divida
+        # Pagamento igual ou maior que a divida significa que ela foi quitada.
+        # Se passou do valor, o programa mostra o troco.
         conexao.execute("DELETE FROM Devedores WHERE id_devedor = ?", (id_devedor,))
         texto = "Divida quitada!"
         if restante < 0:
@@ -591,46 +644,58 @@ def pagar_divida():
 # PROGRAMA PRINCIPAL
 # ============================================================
 
+# QApplication representa a aplicacao grafica completa.
 app = QApplication(sys.argv)
 
-# carrega a tela feita no Qt Designer
-arquivo = QFile(ARQUIVO_UI)
-arquivo.open(QFile.OpenModeFlag.ReadOnly)
-loader = QUiLoader()
-janela = loader.load(arquivo)
-arquivo.close()
+# Cria a janela principal e configura todos os campos usando a classe gerada a partir do .ui.
+janela = QMainWindow()
+interface = Ui_JanelaPrincipal()
+interface.setupUi(janela)
+# Os controles ficam guardados em "interface"; copiamos as referencias para
+# a janela porque as funcoes abaixo acessam os campos usando janela.nomeDoCampo.
+for nome, componente in vars(interface).items():
+    setattr(janela, nome, componente)
 
+# Aqui conectamos o codigo ao banco e garantimos que todas as tabelas existam.
 conexao = conectar_banco()
 criar_tabelas()
 
-# ligando os botoes nas funcoes
+# Ligamos cada botao a sua funcao. Assim, ao clicar no botao, o metodo correspondente sera executado.
+# Produtos
 janela.btnProdSalvar.clicked.connect(cadastrar_produto)
 janela.btnProdAlterar.clicked.connect(alterar_produto)
 janela.btnProdExcluir.clicked.connect(excluir_produto)
 janela.btnProdLimpar.clicked.connect(limpar_produto)
 janela.tabelaProdutos.itemSelectionChanged.connect(selecionar_produto)
 
+# Fornecedores
 janela.btnFornSalvar.clicked.connect(cadastrar_fornecedor)
 janela.btnFornAlterar.clicked.connect(alterar_fornecedor)
 janela.btnFornExcluir.clicked.connect(excluir_fornecedor)
 janela.btnFornLimpar.clicked.connect(limpar_fornecedor)
 janela.tabelaFornecedores.itemSelectionChanged.connect(selecionar_fornecedor)
 
+# Clientes
 janela.btnCliSalvar.clicked.connect(cadastrar_cliente)
 janela.btnCliAlterar.clicked.connect(alterar_cliente)
 janela.btnCliExcluir.clicked.connect(excluir_cliente)
 janela.btnCliLimpar.clicked.connect(limpar_cliente)
 janela.tabelaClientes.itemSelectionChanged.connect(selecionar_cliente)
 
+# Compras
 janela.btnCompraRegistrar.clicked.connect(registrar_compra)
 janela.btnCompraCancelar.clicked.connect(cancelar_compra)
 janela.cbCompraProduto.currentIndexChanged.connect(calcular_total_compra)
 janela.spinCompraQtd.valueChanged.connect(calcular_total_compra)
 
+# Devedores
 janela.btnDevRegistrar.clicked.connect(registrar_divida)
 janela.btnDevPagar.clicked.connect(pagar_divida)
 
+# Ao iniciar, carregamos todos os dados ja existentes no banco.
 atualizar_tudo()
 janela.statusbar.showMessage("Banco de dados: " + ARQUIVO_BANCO)
+# Exibe a janela principal na tela.
 janela.show()
+# Mantem o aplicativo aberto enquanto a janela estiver ativa.
 sys.exit(app.exec())
