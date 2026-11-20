@@ -9,10 +9,14 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QTableWidgetItem
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 
-# pega a pasta onde esta este arquivo, para achar o .ui e o banco
-PASTA = os.path.dirname(os.path.abspath(__file__))
-ARQUIVO_UI = os.path.join(PASTA, "loja.ui")
-ARQUIVO_BANCO = os.path.join(PASTA, "LojaDePipasUni9.db")
+# Quando executado como codigo-fonte, os arquivos ficam na pasta do projeto.
+# Quando empacotado pelo PyInstaller, o executavel guarda o banco ao lado dele
+# e os recursos empacotados ficam na pasta temporaria definida pelo PyInstaller.
+PASTA_PROJETO = os.path.dirname(os.path.abspath(__file__))
+PASTA_RECURSOS = getattr(sys, "_MEIPASS", PASTA_PROJETO)
+PASTA_DADOS = os.path.dirname(sys.executable) if getattr(sys, "frozen", False) else PASTA_PROJETO
+ARQUIVO_UI = os.path.join(PASTA_RECURSOS, "loja.ui")
+ARQUIVO_BANCO = os.path.join(PASTA_DADOS, "LojaDePipasUni9.db")
 
 
 # ============================================================
